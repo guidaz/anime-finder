@@ -8,14 +8,18 @@ document.getElementById("homeBtn").addEventListener("click", voltarInicio);
 btnBuscar.addEventListener("click", buscarAnime);
 window.onload = mostrarFavoritos;
 
-/**
- * Busca animes na API Jikan pelo nome informado no input.
- * Atualiza o anime principal e as opções de outros animes.
- * @returns {Promise<void>}
- */
 async function buscarAnime() {
     const nome = document.getElementById("searchInput").value.trim();
-    if (!nome) return;
+
+    // ✅ ALERTA CAMPO VAZIO
+    if (!nome) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campo vazio',
+            text: 'Digite algo para buscar um anime.'
+        });
+        return;
+    }
 
     principal.innerHTML = "Carregando...";
     opcoes.innerHTML = "";
@@ -34,11 +38,6 @@ async function buscarAnime() {
     mostrarOpcoes(lista.slice(1, 7));
 }
 
-/**
- * Mostra o anime selecionado na área principal.
- * @param {Object} anime - Objeto contendo os dados do anime
- * @returns {Promise<void>}
- */
 async function mostrarPrincipal(anime) {
     const sinopseTraduzida = await traduzirTexto(anime.synopsis || "");
 
@@ -60,11 +59,6 @@ async function mostrarPrincipal(anime) {
     `;
 }
 
-/**
- * Mostra os cards das outras opções de animes clicáveis.
- * @param {Array<Object>} lista - Lista de animes
- * @returns {void}
- */
 function mostrarOpcoes(lista) {
     opcoes.innerHTML = "";
 
@@ -81,7 +75,6 @@ function mostrarOpcoes(lista) {
             </div>
         `;
 
-        // Clique para mostrar como principal
         card.addEventListener("click", () => {
             mostrarPrincipal(anime);
         });
@@ -90,29 +83,29 @@ function mostrarOpcoes(lista) {
     });
 }
 
-/**
- * Adiciona um anime aos favoritos e salva no localStorage.
- * @param {Object} anime - Objeto com dados do anime
- * @returns {void}
- */
 function favoritar(anime) {
     let favoritos = JSON.parse(localStorage.getItem("favoritos")) || [];
 
+    // ✅ TROCA DO ALERT
     if (favoritos.find(a => a.id === anime.id)) {
-        alert("Já está nos favoritos!");
+        Swal.fire({
+            icon: 'info',
+            title: 'Esse anime já está nos favoritos'
+        });
         return;
     }
 
     favoritos.push(anime);
     localStorage.setItem("favoritos", JSON.stringify(favoritos));
     mostrarFavoritos();
+
+    // ✅ RETORNO AO FAVORITAR
+    Swal.fire({
+        icon: 'success',
+        title: 'Adicionado aos favoritos!'
+    });
 }
 
-/**
- * Mostra os favoritos salvos no localStorage.
- * Cada card é clicável para abrir como anime principal e possui botão de remover.
- * @returns {void}
- */
 function mostrarFavoritos() {
     const favoritos = JSON.parse(localStorage.getItem("favoritos")) || [];
 
@@ -132,27 +125,34 @@ function mostrarFavoritos() {
             </div>
         `;
 
-        // Abrir anime ao clicar no card
         card.addEventListener("click", () => {
             buscarAnimePorID(anime.id);
         });
 
-        // Botão de remover sem disparar o click do card
         const btnRemover = card.querySelector("button");
+
+        // ✅ CONFIRMAÇÃO AO REMOVER
         btnRemover.addEventListener("click", (e) => {
             e.stopPropagation();
-            desfavoritar(anime.id);
+
+            Swal.fire({
+                title: 'Tem certeza?',
+                text: 'Deseja remover dos favoritos?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sim, remover',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    desfavoritar(anime.id);
+                }
+            });
         });
 
         favoritosDiv.appendChild(card);
     });
 }
 
-/**
- * Remove um anime dos favoritos pelo ID.
- * @param {number} id - ID do anime a ser removido
- * @returns {void}
- */
 function desfavoritar(id) {
     let favoritos = JSON.parse(localStorage.getItem("favoritos")) || [];
     favoritos = favoritos.filter(anime => anime.id !== id);
@@ -160,11 +160,6 @@ function desfavoritar(id) {
     mostrarFavoritos();
 }
 
-/**
- * Busca um anime pelo ID na API e o mostra como principal.
- * @param {number} id - ID do anime
- * @returns {Promise<void>}
- */
 async function buscarAnimePorID(id) {
     principal.innerHTML = "Carregando...";
     opcoes.innerHTML = "";
@@ -175,12 +170,6 @@ async function buscarAnimePorID(id) {
     mostrarPrincipal(data.data);
 }
 
-/**
- * Traduz o texto da sinopse do inglês para português usando a API MyMemory.
- * Limita o texto a 450 caracteres.
- * @param {string} texto - Texto original em inglês
- * @returns {Promise<string>} - Texto traduzido
- */
 async function traduzirTexto(texto) {
     if (!texto) return "Sem descrição disponível.";
 
@@ -195,13 +184,9 @@ async function traduzirTexto(texto) {
     }
 }
 
-/**
- * Limpa a área principal e o input de pesquisa.
- * Mantém as opções e favoritos visíveis.
- * @returns {void}
- */
 function voltarInicio() {
     principal.innerHTML = "";
+    opcoes.innerHTML = "";
     document.getElementById("searchInput").value = "";
     mostrarFavoritos();
 }

@@ -8,6 +8,7 @@ Projeto desenvolvido com **HTML, CSS e JavaScript** com o objetivo de consumir d
     - HTML5
     - CSS3
     - JavaScript Moderno (ES6+)
+    - SweetAlert2
 
 ## ⚡Funcionalidades do Projeto
     - Buscar animes por nome.
@@ -15,5 +16,12 @@ Projeto desenvolvido com **HTML, CSS e JavaScript** com o objetivo de consumir d
     - Adicionar e remover favoritos, armazenando-os localmente no localStorage.
     - Interface limpa e organizada, responsiva e fácil de usar.
 
+## 🧠Melhorias de Experiência do Usuário (UX)
+    - Exibição de alerta quando o campo de busca está vazio.
+    - Feedback visual ao adicionar um anime aos favoritos.
+    - Substituição de alert() padrão por SweetAlert2 para mensagens mais amigáveis.
+    - Confirmação antes de remover um anime da lista de favoritos.
+
 ## 📄Licença
 Este projeto está licenciado sobre a **Licença MIT**
+```
